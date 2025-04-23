@@ -1,6 +1,7 @@
 import dotenv from "dotenv"
 dotenv.config();
 
+import cookieParser from "cookie-parser";
 import express from "express";
 import { connectDB } from "./db/db.js";
 import authRoutes from "./routes/auth.route.js"
@@ -13,7 +14,7 @@ app.get("/", (req,res)=>{
 });
 
 app.use(express.json());
-
+app.use(cookieParser())
 app.use("/api/auth", authRoutes);
 
 app.listen(PORT, () => {
