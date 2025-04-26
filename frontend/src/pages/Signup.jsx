@@ -1,17 +1,28 @@
 import React, { useState } from 'react'
 import Input from "../components/Input.jsx"
-import { Lock, Mail, User } from "lucide-react"
-import { Link } from "react-router-dom";
+import { Loader, Lock, Mail, User } from "lucide-react"
+import { Link, useNavigate } from "react-router-dom";
 import PasswordStrength from '../components/PasswordStrength.jsx';
+import { useAuthStore } from '../store/authStore.js';
 
 const Signup = () => {
 
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const navigate = useNavigate();
 
-    const handleSignup = (e) => {
+    const {signup, error, isLoading} = useAuthStore();
+
+    const handleSignup = async(e) => {
         e.preventDefault();
+
+        try {
+            await signup(email, password, name);
+            navigate("/verify-email")
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     return (
@@ -41,8 +52,11 @@ const Signup = () => {
                         placeholder="Password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)} />
+                   
+                   {error && <p className='text-red-500 font-semibold mt-2'>{error}</p>}
+
                     {/* Password Strength meter */}
-                    <PasswordStrength password={password}/>
+                    <PasswordStrength password={password} />
 
                     <button
                         className='mt-5 w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-cyan-600 text-white 
@@ -50,19 +64,20 @@ const Signup = () => {
 						hover:to-cyan-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
 						 focus:ring-offset-gray-900 transition duration-200'
                         type='submit'
+                        disabled={isLoading}
                     >
-                        SignUp
+                        {isLoading ? <Loader className='animate-spin mx-auto' size={24}/>: "Sign Up"}
                     </button>
                 </form>
             </div>
             <div className='px-8 py-4 bg-gray-900 bg-opacity-50 flex justify-center'>
-				<p className='text-sm text-gray-400'>
-					Already have an account?{" "}
-					<Link to={"/login"} className='text-blue-400 hover:underline'>
-						Login
-					</Link>
-				</p>
-			</div>
+                <p className='text-sm text-gray-400'>
+                    Already have an account?{" "}
+                    <Link to={"/login"} className='text-blue-400 hover:underline'>
+                        Login
+                    </Link>
+                </p>
+            </div>
         </div>
     )
 }
